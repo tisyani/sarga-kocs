@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>i love you :3</title>
+    <title>I love you :3</title>
     <style>
         * {
             box-sizing: border-box;
@@ -34,6 +34,7 @@
             max-width: 400px;
             margin: 20px auto;
             box-shadow: 0 0 0 6px #fff, 0 0 0 12px #d50000;
+            position: relative;
         }
         
         h1 {
@@ -95,9 +96,35 @@
             animation: bounce 2s infinite;
         }
         
+        .heart-link {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.8rem;
+            text-decoration: none;
+            animation: pulse 1.5s infinite;
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            z-index: 10;
+        }
+        
+        .heart-link span {
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+        }
+        
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
         
         .footer {
@@ -116,16 +143,17 @@
         }
     </style>
 </head>
-<body>
+<body> 
     <div class="container">
+        <a href="https://tisyani.github.io/countdown/" class="heart-link" id="heartLink"><span>❤️</span></a>
         <div class="car-icon">🚗</div>
         <h1>SARGA KOCS SPOTTER</h1>
         
         <div class="counter" id="counter">0</div>
         
         <div class="button-container">
-            <button id="addBtn">KOCS</button>
-            <button id="minusBtn">vicc volt</button>
+            <button id="addBtn">KOCS !!</button>
+            <button id="minusBtn">wicc volt</button>
         </div>
         
         <div class="footer">
@@ -138,6 +166,7 @@
         const counterElement = document.getElementById('counter');
         const addBtn = document.getElementById('addBtn');
         const minusBtn = document.getElementById('minusBtn');
+        const heartLink = document.getElementById('heartLink');
         
         // Load saved count from localStorage
         if (localStorage.getItem('yellowCarCount')) {
@@ -168,6 +197,11 @@
                 updateCounter();
             }
         });
+        
+        // Make sure heart link is clickable on mobile
+        heartLink.addEventListener('touchstart', function(e) {
+            // Let the default link behavior happen
+        }, { passive: true });
         
         // Prevent double-tap zoom on buttons
         addBtn.addEventListener('touchstart', function(e) {
