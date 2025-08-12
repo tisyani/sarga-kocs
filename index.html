@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>i love you :3</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace;
+            background-color: #ffeb3b;
+            color: #d50000;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: linear-gradient(45deg, #ffeb3b 25%, #ffc107 25%, #ffc107 50%, #ffeb3b 50%, #ffeb3b 75%, #ffc107 75%, #ffc107 100%);
+            background-size: 20px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 6px double #d50000;
+            border-radius: 15px;
+            padding: 20px;
+            width: 95%;
+            max-width: 400px;
+            margin: 20px auto;
+            box-shadow: 0 0 0 6px #fff, 0 0 0 12px #d50000;
+        }
+        
+        h1 {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            text-shadow: 2px 2px 0 #ffc107;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+        
+        .counter {
+            font-size: clamp(4rem, 15vw, 5rem);
+            font-weight: bold;
+            margin: 25px 0;
+            color: #d50000;
+            text-shadow: 3px 3px 0 #ffc107;
+            background-color: white;
+            border: 4px solid #d50000;
+            border-radius: 10px;
+            padding: 10px 20px;
+            display: inline-block;
+            min-width: 120px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #d50000;
+            color: white;
+            border: none;
+            padding: 18px 15px;
+            font-size: 1.1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 3px 3px 0 #ffc107;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            width: 100%;
+            -webkit-appearance: none;
+        }
+        
+        button:hover, button:active {
+            background-color: #b71c1c;
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #ffc107;
+        }
+        
+        .car-icon {
+            font-size: clamp(2.5rem, 10vw, 3rem);
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .footer {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: #d50000;
+        }
+        
+        /* iPhone X notch area safe zones */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="car-icon">🚗</div>
+        <h1>SARGA KOCS SPOTTER</h1>
+        
+        <div class="counter" id="counter">0</div>
+        
+        <div class="button-container">
+            <button id="addBtn">KOCS</button>
+            <button id="minusBtn">vicc volt</button>
+        </div>
+        
+        <div class="footer">
+            Yany loves Bogy more.
+        </div>
+    </div>
+
+    <script>
+        let count = 0;
+        const counterElement = document.getElementById('counter');
+        const addBtn = document.getElementById('addBtn');
+        const minusBtn = document.getElementById('minusBtn');
+        
+        // Load saved count from localStorage
+        if (localStorage.getItem('yellowCarCount')) {
+            count = parseInt(localStorage.getItem('yellowCarCount'));
+            counterElement.textContent = count;
+        }
+        
+        function updateCounter() {
+            counterElement.textContent = count;
+            localStorage.setItem('yellowCarCount', count);
+            
+            // Add animation
+            counterElement.style.transform = 'scale(1.1)';
+            counterElement.style.transition = 'transform 0.2s';
+            setTimeout(() => {
+                counterElement.style.transform = 'scale(1)';
+            }, 200);
+        }
+        
+        addBtn.addEventListener('click', function() {
+            count++;
+            updateCounter();
+        });
+        
+        minusBtn.addEventListener('click', function() {
+            if (count > 0) {
+                count--;
+                updateCounter();
+            }
+        });
+        
+        // Prevent double-tap zoom on buttons
+        addBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        minusBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
