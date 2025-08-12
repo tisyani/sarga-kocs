@@ -23,6 +23,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            touch-action: manipulation;
         }
         
         .container {
@@ -82,9 +83,10 @@
             letter-spacing: 1px;
             width: 100%;
             -webkit-appearance: none;
+            touch-action: manipulation;
         }
         
-        button:hover, button:active {
+        button:active {
             background-color: #b71c1c;
             transform: translate(2px, 2px);
             box-shadow: 1px 1px 0 #ffc107;
@@ -133,6 +135,12 @@
             color: #d50000;
         }
         
+        .sync-status {
+            font-size: 0.7rem;
+            margin-top: 10px;
+            color: #666;
+        }
+        
         /* iPhone X notch area safe zones */
         @supports (padding: max(0px)) {
             body {
@@ -143,17 +151,18 @@
         }
     </style>
 </head>
-<body> 
+<body>
     <div class="container">
-        <a href="https://tisyani.github.io/countdown/" class="heart-link" id="heartLink"><span>❤️</span></a>
+        <a href="https://example.com/our-special-page" class="heart-link" id="heartLink"><span>❤️</span></a>
         <div class="car-icon">🚗</div>
         <h1>SARGA KOCS SPOTTER</h1>
         
         <div class="counter" id="counter">0</div>
+        <div class="sync-status" id="syncStatus">Connecting...</div>
         
         <div class="button-container">
             <button id="addBtn">KOCS !!</button>
-            <button id="minusBtn">wicc volt</button>
+            <button id="minusBtn">wiccvolt</button>
         </div>
         
         <div class="footer">
@@ -161,24 +170,81 @@
         </div>
     </div>
 
+    <!-- Add Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <script>
+        // Your Firebase configuration (you'll get this from Firebase console)
+const firebaseConfig = {
+  apiKey: "AIzaSyCfl2xWaPyX-LHwFJij2pKBuMQo6OH0Y90",
+  authDomain: "sarga-kocs.firebaseapp.com",
+  databaseURL: "https://sarga-kocs-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "sarga-kocs",
+  storageBucket: "sarga-kocs.firebasestorage.app",
+  messagingSenderId: "307146456074",
+  appId: "1:307146456074:web:8891aa4e8677a6573e73f3",
+  measurementId: "G-3FTNV7W8FQ"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // Game variables
         let count = 0;
         const counterElement = document.getElementById('counter');
         const addBtn = document.getElementById('addBtn');
         const minusBtn = document.getElementById('minusBtn');
-        const heartLink = document.getElementById('heartLink');
+        const syncStatus = document.getElementById('syncStatus');
         
-        // Load saved count from localStorage
-        if (localStorage.getItem('yellowCarCount')) {
-            count = parseInt(localStorage.getItem('yellowCarCount'));
-            counterElement.textContent = count;
+        // Initialize the app
+        function initApp() {
+            // Listen for value changes in Firebase
+            database.ref('yellowCarCount').on('value', (snapshot) => {
+                const newCount = snapshot.val() || 0;
+                if (newCount !== count) {
+                    count = newCount;
+                    updateCounterDisplay();
+                    showSyncStatus("Synced just now");
+                }
+            }, (error) => {
+                showSyncStatus("Sync error");
+                console.error("Firebase error:", error);
+            });
+            
+            // Load initial value
+            database.ref('yellowCarCount').once('value').then((snapshot) => {
+                count = snapshot.val() || 0;
+                updateCounterDisplay();
+                showSyncStatus("Synced");
+            });
+            
+            // Set up buttons
+            setupButton(addBtn, () => changeCount(1));
+            setupButton(minusBtn, () => changeCount(-1));
         }
         
-        function updateCounter() {
+        // Change the count and update Firebase
+        function changeCount(delta) {
+            const newCount = count + delta;
+            if (newCount >= 0) { // Prevent negative counts
+                showSyncStatus("Updating...");
+                database.ref('yellowCarCount').set(newCount)
+                    .then(() => {
+                        count = newCount;
+                        updateCounterDisplay();
+                    })
+                    .catch((error) => {
+                        showSyncStatus("Update failed");
+                        console.error("Update error:", error);
+                    });
+            }
+        }
+        
+        // Update the counter display with animation
+        function updateCounterDisplay() {
             counterElement.textContent = count;
-            localStorage.setItem('yellowCarCount', count);
-            
-            // Add animation
             counterElement.style.transform = 'scale(1.1)';
             counterElement.style.transition = 'transform 0.2s';
             setTimeout(() => {
@@ -186,31 +252,36 @@
             }, 200);
         }
         
-        addBtn.addEventListener('click', function() {
-            count++;
-            updateCounter();
-        });
-        
-        minusBtn.addEventListener('click', function() {
-            if (count > 0) {
-                count--;
-                updateCounter();
+        // Show sync status with temporary messages
+        function showSyncStatus(message) {
+            syncStatus.textContent = message;
+            if (message !== "Connecting..." && message !== "Updating...") {
+                setTimeout(() => syncStatus.textContent = "Synced", 2000);
             }
-        });
+        }
         
-        // Make sure heart link is clickable on mobile
-        heartLink.addEventListener('touchstart', function(e) {
-            // Let the default link behavior happen
-        }, { passive: true });
+        // Mobile-friendly button setup
+        function setupButton(button, action) {
+            // Click event for desktop
+            button.addEventListener('click', action);
+            
+            // Touch events for mobile
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                button.style.transform = 'translate(2px, 2px)';
+                button.style.boxShadow = '1px 1px 0 #ffc107';
+            }, { passive: false });
+            
+            button.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                button.style.transform = '';
+                button.style.boxShadow = '3px 3px 0 #ffc107';
+                action();
+            }, { passive: false });
+        }
         
-        // Prevent double-tap zoom on buttons
-        addBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-        
-        minusBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-        }, { passive: false });
+        // Initialize the app when Firebase is ready
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
